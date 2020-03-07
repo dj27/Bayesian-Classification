@@ -1,0 +1,42 @@
+import csv
+import math
+import random
+import pandas as pd
+lines = pd.read_csv('/content/income.csv')
+print(lines)
+
+#Step 1 : Getting the probablitity of Buys Classes
+
+prior = lines.groupby('Buys Computer').size().div(len(lines)) 
+print (prior)
+
+#Step 2 Calculating the probablity of each attribute with respect to Buys Computers
+
+Class={}
+Class['Credit_Rating']= (lines.groupby(['Buys Computer','Credit_Rating']).size().div(len(lines)) ).div (prior)
+Class['Age']= (lines.groupby(['Buys Computer','Age']).size().div(len(lines)) ).div(prior)
+Class['Income']= (lines.groupby(['Buys Computer','Income']).size().div(len(lines)) ).div(prior)
+Class['Student']= (lines.groupby(['Buys Computer','Student']).size().div(len(lines)) ).div(prior)
+print (Class)
+
+#Step 3 Calculating the Posterior Probability
+
+print("Enter the unknown sample")
+A=input("Enter the age")
+B=input("Enter whether student or not")
+C=input("Enter the credit rating")
+D=input("Enter the income range")
+p_yes = Class['Age']['yes'][A] * Class['Income']['yes'][D] * \
+        Class['Student']['yes'][B] * Class['Credit_Rating']['yes'][C] \
+        * prior['yes']
+p_no = Class['Age']['no'][A] * Class['Income']['no'][D] * \
+       Class['Student']['no'][B] * Class['Credit_Rating']['no'][C] \
+       * prior['no']
+
+print ('Yes : ', p_yes)
+print ('No :  ', p_no)
+
+if (p_yes >p_no):
+  print("Unknown sample gets classified under :Buys a computer (Yes)")
+else:
+    print("Unknown sample gets classified under : Does not buy a computer (No)")
